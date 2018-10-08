@@ -94,8 +94,19 @@ function update_im(form, lock_im) {
 }
 
 document.querySelector('button#simulate').onclick = simulate;
-document.querySelector('button#optimize').onclick = optimize;
 document.querySelector('button#calculate').onclick = NCCalculate;
+document.querySelector('button#optimize').onclick = function() {
+  let $output = document.querySelector('#optimize #output');
+  $output.innerHTML = 'Loading...';
+  optimizer = optimize();
+  function loop() {
+    if (!optimizer.next().done) {
+      $output.innerHTML += '.';
+      setTimeout(loop, 10);
+    }
+  }
+  loop();
+};
 
 // Top of page tabs
 $tabmenu = document.getElementById('tabmenu');
@@ -333,20 +344,6 @@ function bool_from_input(form, id) {
   return $elm.checked;
 }
 
-function disallowUndefinedProperties(obj) {
-  const handler = {
-    get(target, property) {
-      if (property in target) {
-	return target[property];
-      }
-
-      throw new Error(`Property '${property}' is not defined`);
-    }
-  };
-
-  return new Proxy(obj, handler);
-}
-
 function simulate() {
   let settings = {};
   settings.deck_size = int_from_input('simulate', 'deck_size');
@@ -462,14 +459,17 @@ function NCCalculate() {
   $output.innerText = 'New Cards: ' + N;
 }
 
-function optimize() {
-  let settings = disallowUndefinedProperties({});
+function* optimize() {
+  let current_im = float_from_input('optimize', 'current_im');
+  let current_ret = float_from_input('optimize', 'current_ret');
+
+  let settings = {};
   settings.failure_penalty = float_from_input('optimize', 'failure_penalty');
   settings.reps_new = float_from_input('optimize', 'reps_new');
   settings.reps_failed = float_from_input('optimize', 'reps_failed');
   settings.dead_point = int_from_input('optimize', 'dead_point');
   settings.use_anki_fail_factor = bool_from_input('optimize', 'use_anki_fail_factor');
-  settings.ret_at_100_im = float_from_input('optimize', 'ret_at_100_im');
+  settings.ret_at_100_im = Math.exp(Math.log(current_ret)/current_im);
 
   let total_study_time_mins = int_from_input('optimize', 'total_study_time_mins');
   let time_per_rep = int_from_input('optimize', 'time_per_rep');
@@ -478,27 +478,19 @@ function optimize() {
   let end_r = 90;
   let step_r = 1;
 
-  let table = document.createElement('table');
-  table.className = 'stats';
-  let header = document.createElement('th');
-  header.innerText = 'Days Simulated';
-  table.appendChild(header);
-  header = document.createElement('th');
-  header.innerText = 'New Cards';
-  table.appendChild(header);
-  for (let x = start_r; x < end_r; x = x + step_r) {
-    header = document.createElement('th');
-    header.innerText = 'R=' + x + '%';
-    table.appendChild(header);
+  let start_days = int_from_input('optimize', 'start_days');
+  let end_days = int_from_input('optimize', 'end_days');
+  let step_days = (end_days - start_days) / 10;
+  if (step_days < 1) {
+    end_days = start_days;
   }
+
+  let er_tally = {};
 
   // constant that is simply needed for simulation. Larger = more accurate but slower sims.
   settings.new_card_per_day = 30;
-  for (let days = 100; days <= 1000; days = days + 100) {
-    let row = document.createElement('tr');
-    let d = document.createElement('td');
-    d.innerText = days;
-    row.appendChild(d);
+  for (let days = start_days; days <= end_days; days = days + step_days) {
+    yield
     let best_er = -1;
     let lowest = 1/0;
     let means = [];
@@ -518,42 +510,40 @@ function optimize() {
         best_er = x;
       }
     }
-    let N = 5;
-    while (true) {
-      settings.new_card_per_day = N;
-      settings.retention = best_er/100;
-      settings.interval_modifier = Math.log(settings.retention)/Math.log(settings.ret_at_100_im);
-      let deck = new Deck(settings);
-      deck.simulate(days);
-      let reps = [];
-      for (let i = 0; i < deck.log.length; i++) {
-        reps.push(deck.log[i].reps);
-      }
-      let m = mean(reps);
-      if (m * time_per_rep > 60 * total_study_time_mins) {
-        N = N - 1;
-        break;
-      }
-      N = N + 1;
-    }
-    d = document.createElement('td');
-    d.innerText = N;
-    row.appendChild(d);
-    for (let i = 0; i < means.length; i++) {
-      let m = means[i];
-      d = document.createElement('td');
-      d.innerText = m.toFixed(2);
-      row.appendChild(d);
-      if (m === lowest) {
-        d.style = 'background: green;';
-      }
-    }
-    table.appendChild(row);
+    er_tally[best_er] = er_tally[best_er] || 0;
+    er_tally[best_er]++;
   }
-  console.log(settings);
 
+  let most_occ = 0;
+  let overall_best_er = 0;
+  for (let er in er_tally) {
+    if (er_tally[er] > most_occ) {
+      most_occ = er_tally[er];
+      overall_best_er = er;
+    }
+  }
+
+  let N = 5;
+  while (true) {
+    settings.new_card_per_day = N;
+    settings.retention = overall_best_er/100;
+    settings.interval_modifier = Math.log(settings.retention)/Math.log(settings.ret_at_100_im);
+    let deck = new Deck(settings);
+    deck.simulate((start_days + end_days)/2);
+    let reps = [];
+    for (let i = 0; i < deck.log.length; i++) {
+      reps.push(deck.log[i].reps);
+    }
+    let m = mean(reps);
+    if (m * time_per_rep > 60 * total_study_time_mins) {
+      N = N - 1;
+      break;
+    }
+    N = N + 1;
+  }
+  let IM = (100 * settings.interval_modifier).toFixed(0);
   let $output = document.querySelector('#optimize #output');
-  $output.appendChild(table);
+  $output.innerHTML = `R=${overall_best_er}% NC=${N} IM=${IM}%`;
 }
 // export
 function make_csv_link(log) {
@@ -650,28 +640,7 @@ function draw_chart(labels, reps, reviews, deads=null) {
 	    labelString: 'Reps',
 	  },
         }],
-      }, /* ,
-	    annotation: {
-	    drawTime: 'beforeDatasetsDraw',
-	    events: ['click'],
-	    annotations: [{
-	    type: 'line',
-	    mode: 'horizontal',
-	    scaleID: 'y-axis-0',
-	    value: new_card_per_day,
-	    borderColor: '#0000ff',
-	    borderWidth: 1,
-	    label: {
-	    enabled: false,
-	    content: 'new cards per day'
-	    },
-	    onClick:function(e) {
-	    console.log(this, e)
-	    this.options.label.enabled = true;
-	    this.chartInstance.update();
-	    }
-	    }]
-	    }*/
+      }, 
     },
   });
   let $result = document.querySelector('#simulate #result');
