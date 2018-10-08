@@ -132,3 +132,7 @@ input.tiny {
   background-color: #ccc;
 }
 
+#opt2frame {
+  height: 100%;
+  width: 100%;
+}
