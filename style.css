@@ -1,0 +1,134 @@
+body {
+  font-family:tahoma, sans-serif;
+  padding:0 10px;
+  background:#edf9ff;
+}
+a:hover {
+    /* text-decoration: underline; */
+    border-bottom: 1.5px dotted #008dff;
+}
+a {
+    text-decoration: none;
+    color: #008dff;
+}
+#locked {
+  width:25px;
+  height:25px;
+  background-image:url('https://thumbs.dreamstime.com/t/lock-unlock-icons-set-great-any-use-vector-eps-54044039.jpg');
+  background-position:-10px -8px;
+  background-size: 80px 80px;
+  display:inline-block;
+  cursor:hand;
+}
+input:checked + #locked{
+  background-position:-43px -9px;
+}
+#lock_chkb {
+  display:none;
+}
+#lock_chkb2 {
+  display:none;
+}
+#interval_modifier {
+  width:119px;
+}
+
+#result {
+  background:#fff;
+  padding:5px;
+  border-radius:10px;
+  border:1px solid #008dff;
+}
+label {
+  display:inline-block;
+  margin: 0.5em 0.5em 0.2em 5px;
+}
+.desc {
+  color:#555;
+  font-size:80%;
+  display:inline-block;
+}
+.hint {
+  display:inline-block;
+  margin-left:0.5em;
+  color:#555;
+  font-size:90%;
+}
+
+input[type=number] {
+  border:1px solid #008dff;
+  border-radius:10px;
+  padding:3px 10px;
+}
+input[disabled] {
+  border:1px solid #aaa;
+}
+
+#clickables button {
+  font-size:120%;
+  border:1px solid #008dff;
+  border-radius:10px;
+  padding:3px 10px;
+  background:#00aaff;
+  color:#cceeff;
+  display:inline-block;
+  margin:10px 0;
+  cursor:pointer;
+}
+#clickables button:hover{
+  background:#33aaff;
+  color:#fff
+}
+#clickables button:active{
+  background:#0088ee;
+  color:#fff
+}
+
+#output {
+  margin-left:5px;  
+}
+table.stats {
+  border-collapse:collapse;
+}
+table.stats th,table.stats td {
+  text-align:center;
+  border:1px solid #bbb;
+  /*border-width:0 1px;*/
+  padding:0.2em 1em;
+}
+table.stats th[rowspan="2"] {
+  border:none;
+}
+
+input.tiny {
+  width:3.5em;
+}
+
+/* Style the tab */
+#tabmenu {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+#tabmenu button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+#tabmenu button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+#tabmenu button.active {
+  background-color: #ccc;
+}
+
