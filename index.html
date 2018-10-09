@@ -2,9 +2,9 @@
 <link href="style.css" rel="stylesheet">
 <div id="tabmenu">
     <button class='active'>Simulator</button>
+    <button>Optimizer</button>
     <button>Range Optimizer</button>
     <button>New Cards Calcuator</button>
-    <button>Optimizer</button>
 </div>
 <span id="tabs">
     <div id='simulate'>
@@ -40,8 +40,11 @@
             <canvas id="myChart" width="400" height="100"></canvas>  
         </div>
     </div>
+    <div id='opt2' style='display: none;'>
+        <iframe id='opt2frame' src='https://jsfiddle.net/yx2fre65/embedded/result/light/'></iframe>
+    </div>
     <div id='optimize' style='display: none;'>
-        <h1>Anki Optimizer</h1>
+        <h1>Ranged Anki Optimizer</h1>
         <label for="total_study_time_mins">Desired Minutes of Study per Day</label><br>
         <input id="total_study_time_mins" type="number" value="60" step="15" min="0"><br>
         <label for="time_per_rep">Seconds Spent per Rep</label><br>
@@ -98,9 +101,6 @@
         <div>
             <div id="output"></div>
         </div>
-    </div>
-    <div id='opt2' style='display: none;'>
-        <iframe id='opt2frame' src='https://jsfiddle.net/yx2fre65/embedded/result/light/'></iframe>
     </div>
 </span>
 <script>
