@@ -483,6 +483,7 @@ function* optimize() {
   let step_days = (end_days - start_days) / 10;
   if (step_days < 1) {
     end_days = start_days;
+    step_days = 1;
   }
 
   let er_tally = {};
@@ -494,7 +495,7 @@ function* optimize() {
     let best_er = -1;
     let lowest = 1/0;
     let means = [];
-    for (let x = start_r; x < end_r; x = x + step_r) {
+    for (let x = start_r; x <= end_r; x = x + step_r) {
       settings.retention = x/100;
       settings.interval_modifier = Math.log(settings.retention)/Math.log(settings.ret_at_100_im);
       let deck = new Deck(settings);
