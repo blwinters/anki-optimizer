@@ -515,6 +515,8 @@ function* optimize() {
     er_tally[best_er]++;
   }
 
+  console.log(er_tally);
+
   let most_occ = 0;
   let overall_best_er = 0;
   for (let er in er_tally) {
@@ -542,9 +544,14 @@ function* optimize() {
     }
     N = N + 1;
   }
+  let true_retention = -(1-overall_best_er/100)/Math.log(overall_best_er/100);
+  let retained_nc = true_retention*N;
   let IM = (100 * settings.interval_modifier).toFixed(0);
   let $output = document.querySelector('#optimize #output');
-  $output.innerHTML = `R=${overall_best_er}% NC=${N} IM=${IM}%`;
+  $output.innerHTML = `<table class='stats'>
+  <tr><th>Retention</th><th>IM</th><th>True Retention</th><th>Optimal New Cards per Day</th><th>Retained New Cards</th></tr>
+  <tr><td>${overall_best_er}%</td><td>${IM}%</td><td>${(true_retention*100).toFixed(1)}%</td><td>${N}</td><td>${retained_nc.toFixed(2)}</td></tr>
+  </table>`;
 }
 // export
 function make_csv_link(log) {
