@@ -321,12 +321,15 @@ class Deck {
         extra
     ));
   }
-  simulate(days=Infinity) {
+  simulate(days=Infinity, extra_days=0) {
     for (let i = 0; i < days; i++) {
       this.update_day();
       if (this.size === 0) {
         break;
       }
+    }
+    for (let i = 0; i < extra_days; i++) {
+      this.update_day();
     }
   }
 }
@@ -358,7 +361,7 @@ function simulate() {
   settings.use_anki_fail_factor = bool_from_input('simulate', 'use_anki_fail_factor');
 
   let d = new Deck(settings, settings.deck_size);
-  d.simulate();
+  d.simulate(1/0, settings.extra_sim);
 
   function get_data(deck, with_extra=false) {
     let reps=[]; let reviews=[]; let labels=[]; let deads=[];
