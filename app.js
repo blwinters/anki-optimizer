@@ -483,7 +483,7 @@ function* optimize() {
 
   let start_days = int_from_input('optimize', 'start_days');
   let end_days = int_from_input('optimize', 'end_days');
-  let step_days = (end_days - start_days) / 10;
+  let step_days = (end_days - start_days) / 15;
   if (step_days < 1) {
     end_days = start_days;
     step_days = 1;
