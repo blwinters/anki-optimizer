@@ -495,8 +495,6 @@ function* optimize() {
   settings.new_card_per_day = 30;
   for (let days = start_days; days <= end_days; days = days + step_days) {
     yield
-    let best_er = -1;
-    let lowest = 1/0;
     let means = [];
     for (let x = start_r; x <= end_r; x = x + step_r) {
       settings.retention = x/100;
@@ -509,22 +507,18 @@ function* optimize() {
       }
       let m = mean(reps);
       means.push(m);
-      if (m < lowest) {
-        lowest = m;
-        best_er = x;
-      }
+      er_tally[x] = er_tally[x] || 0;
+      er_tally[x] += m;
     }
-    er_tally[best_er] = er_tally[best_er] || 0;
-    er_tally[best_er]++;
   }
 
   console.log(er_tally);
 
-  let most_occ = 0;
+  let least_reps = 1/0;
   let overall_best_er = 0;
   for (let er in er_tally) {
-    if (er_tally[er] > most_occ) {
-      most_occ = er_tally[er];
+    if (er_tally[er] < least_reps) {
+      least_reps = er_tally[er];
       overall_best_er = er;
     }
   }
