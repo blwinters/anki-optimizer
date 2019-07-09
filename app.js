@@ -74,7 +74,7 @@ $dead_point.onchange = function() {
   let dp = parseInt(this.value, 10);
   dp = Math.max(0, dp);
   if (dp === 0) {
-  	$dp_verbose.textContent = 'no dead point';
+  	$dp_verbose.textContent = 'no retiring interval';
   } else {
     $dp_verbose.textContent = days_to_verbose(dp);
   }
